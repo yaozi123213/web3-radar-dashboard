@@ -11,6 +11,7 @@ import {
 import Badge from "../ui/badge/Badge";
 import { useWeb3Projects, ProjectSortOrder } from "@/hooks/useWeb3Projects";
 import type { Web3Project } from "@/types/web3-project";
+import { Modal } from "@/components/ui/modal";
 
 interface ProjectScan {
   id: string;
@@ -90,8 +91,9 @@ const RISK_OPTIONS: { label: string; value: RiskLevelType | "" }[] = [
 // 可用的链选项（基于现有样本项目）
 const CHAIN_OPTIONS = [
   { label: "All chains", value: "" },
-  { label: "Ethereum", value: "Ethereum" },
-  { label: "Optimism", value: "Optimism" },
+  { label: "Ethereum", value: "ethereum" },
+  { label: "Optimism", value: "optimism" },
+  { label: "Polygon", value: "polygon" },
 ];
 
 export default function RecentOrders() {
@@ -99,6 +101,7 @@ export default function RecentOrders() {
   const [sortOrder, setSortOrder] = useState<ProjectSortOrder>("desc");
   const [selectedRisk, setSelectedRisk] = useState<RiskLevelType | "">("");
   const [selectedChain, setSelectedChain] = useState<string>("");
+  const [selectedProject, setSelectedProject] = useState<Web3Project | null>(null);
 
   // 准备筛选参数：空字符串表示"全部"，将其转换为 undefined 以避免传给 API 空字符串数组
   const riskLevels = selectedRisk ? [selectedRisk as RiskLevelType] : undefined;
@@ -113,6 +116,14 @@ export default function RecentOrders() {
   });
 
   const tableData = projects.map(mapWeb3ProjectToProjectScan);
+
+  const openProjectDetail = (project: Web3Project) => {
+    setSelectedProject(project);
+  };
+
+  const closeProjectDetail = () => {
+    setSelectedProject(null);
+  };
 
   if (isLoading) {
     return (
@@ -223,10 +234,13 @@ export default function RecentOrders() {
                 </TableCell>
               </TableRow>
             ) : (
-              tableData.map((project) => (
+              tableData.map((project, index) => (
                 <TableRow key={project.id}>
                   <TableCell className="py-3">
-                    <div>
+                    <div 
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      onClick={() => openProjectDetail(projects[index])}
+                    >
                       <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                         {project.name}
                       </p>
@@ -237,41 +251,61 @@ export default function RecentOrders() {
                   </TableCell>
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {project.category}
-                  </TableCell>
-
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    <Badge
-                      size="sm"
-                      color={
-                        project.risk === "Low"
-                          ? "success"
-                          : project.risk === "Medium"
-                          ? "warning"
-                          : "error"
-                      }
+                    <div 
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      onClick={() => openProjectDetail(projects[index])}
                     >
-                      {project.risk}
-                    </Badge>
+                      {project.category}
+                    </div>
                   </TableCell>
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {project.riskScore}
-                  </TableCell>
-
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    <Badge
-                      size="sm"
-                      color={
-                        project.status === "Reviewed"
-                          ? "success"
-                          : project.status === "Watching"
-                          ? "warning"
-                          : "error"
-                      }
+                    <div 
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      onClick={() => openProjectDetail(projects[index])}
                     >
-                      {project.status}
-                    </Badge>
+                      <Badge
+                        size="sm"
+                        color={
+                          project.risk === "Low"
+                            ? "success"
+                            : project.risk === "Medium"
+                            ? "warning"
+                            : "error"
+                        }
+                      >
+                        {project.risk}
+                      </Badge>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <div 
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      onClick={() => openProjectDetail(projects[index])}
+                    >
+                      {project.riskScore}
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <div 
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      onClick={() => openProjectDetail(projects[index])}
+                    >
+                      <Badge
+                        size="sm"
+                        color={
+                          project.status === "Reviewed"
+                            ? "success"
+                            : project.status === "Watching"
+                            ? "warning"
+                            : "error"
+                        }
+                      >
+                        {project.status}
+                      </Badge>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -279,6 +313,196 @@ export default function RecentOrders() {
           </TableBody>
         </Table>
       </div>
+
+      {/* 项目详情模态框 */}
+      <Modal
+        isOpen={selectedProject !== null}
+        onClose={closeProjectDetail}
+        showCloseButton={true}
+        className="max-w-3xl"
+      >
+        {selectedProject && (
+          <div className="p-6">
+            <div className="mb-6">
+              <h3 className="text-2xl font-semibold text-gray-800 dark:text-white/90 mb-2">
+                {selectedProject.name}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                {selectedProject.description}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Project ID
+                  </h4>
+                  <p className="text-gray-800 dark:text-white/90 font-mono">
+                    {selectedProject.id}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Category
+                  </h4>
+                  <p className="text-gray-800 dark:text-white/90">
+                    {selectedProject.category}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Risk Level
+                  </h4>
+                  <div className="inline-flex">
+                    <Badge
+                      size="sm"
+                      color={
+                        selectedProject.riskLevel === "low"
+                          ? "success"
+                          : selectedProject.riskLevel === "medium"
+                          ? "warning"
+                          : "error"
+                      }
+                    >
+                      {selectedProject.riskLevel.charAt(0).toUpperCase() + selectedProject.riskLevel.slice(1)}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Risk Score
+                  </h4>
+                  <p className="text-gray-800 dark:text-white/90">
+                    {selectedProject.riskScore}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    Status
+                  </h4>
+                  <div className="inline-flex">
+                    <Badge
+                      size="sm"
+                      color={
+                        selectedProject.status === "active" 
+                          ? "warning" 
+                          : selectedProject.status === "testing"
+                          ? "warning"
+                          : selectedProject.status === "launching"
+                          ? "error"
+                          : "success"
+                      }
+                    >
+                      {selectedProject.status.charAt(0).toUpperCase() + selectedProject.status.slice(1)}
+                    </Badge>
+                  </div>
+                </div>
+
+                {selectedProject.token && (
+                  <>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Token
+                      </h4>
+                      <p className="text-gray-800 dark:text-white/90">
+                        {selectedProject.token.symbol} ({selectedProject.token.name})
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        Chain
+                      </h4>
+                      <p className="text-gray-800 dark:text-white/90 capitalize">
+                        {selectedProject.token.chain}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {selectedProject.tvl && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Total Value Locked
+                    </h4>
+                    <p className="text-gray-800 dark:text-white/90">
+                      ${selectedProject.tvl.toLocaleString()}
+                    </p>
+                  </div>
+                )}
+
+                {selectedProject.websiteUrl && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Website
+                    </h4>
+                    <p className="text-gray-800 dark:text-white/90 truncate">
+                      <a 
+                        href={selectedProject.websiteUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-brand-500 hover:text-brand-600 transition-colors"
+                      >
+                        {selectedProject.websiteUrl}
+                      </a>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {selectedProject.tags && selectedProject.tags.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  Tags
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedProject.riskMetrics && selectedProject.riskMetrics.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
+                  Risk Metrics Breakdown
+                </h4>
+                <div className="space-y-3">
+                  {selectedProject.riskMetrics.map((metric, index) => (
+                    <div key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-gray-700 dark:text-gray-300 capitalize">
+                          {metric.category}
+                        </span>
+                        <span className="font-semibold text-gray-800 dark:text-white/90">
+                          {metric.score}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {metric.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
