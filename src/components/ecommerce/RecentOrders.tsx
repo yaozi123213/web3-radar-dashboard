@@ -77,14 +77,39 @@ function mapWeb3ProjectToProjectScan(project: Web3Project): ProjectScan {
   };
 }
 
+// 可用的风险等级选项（类型安全）
+type RiskLevelType = Web3Project["riskLevel"];
+const RISK_OPTIONS: { label: string; value: RiskLevelType | "" }[] = [
+  { label: "All risks", value: "" },
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+  { label: "Critical", value: "critical" },
+];
+
+// 可用的链选项（基于现有样本项目）
+const CHAIN_OPTIONS = [
+  { label: "All chains", value: "" },
+  { label: "Ethereum", value: "Ethereum" },
+  { label: "Optimism", value: "Optimism" },
+];
+
 export default function RecentOrders() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<ProjectSortOrder>("desc");
+  const [selectedRisk, setSelectedRisk] = useState<RiskLevelType | "">("");
+  const [selectedChain, setSelectedChain] = useState<string>("");
+
+  // 准备筛选参数：空字符串表示"全部"，将其转换为 undefined 以避免传给 API 空字符串数组
+  const riskLevels = selectedRisk ? [selectedRisk as RiskLevelType] : undefined;
+  const chains = selectedChain ? [selectedChain] : undefined;
 
   const { projects, isLoading, error } = useWeb3Projects({
     searchQuery,
     sortBy: "riskScore",
     sortOrder,
+    riskLevels,
+    chains,
   });
 
   const tableData = projects.map(mapWeb3ProjectToProjectScan);
@@ -128,6 +153,30 @@ export default function RecentOrders() {
             placeholder="Search projects..."
             className="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm text-gray-700 shadow-theme-xs outline-none transition placeholder:text-gray-400 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 sm:w-64"
           />
+
+          <select
+            value={selectedRisk}
+            onChange={(event) => setSelectedRisk(event.target.value as RiskLevelType | "")}
+            className="h-11 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs outline-none transition focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+          >
+            {RISK_OPTIONS.map((opt) => (
+              <option key={opt.value || "all-risks"} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedChain}
+            onChange={(event) => setSelectedChain(event.target.value)}
+            className="h-11 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs outline-none transition focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+          >
+            {CHAIN_OPTIONS.map((opt) => (
+              <option key={opt.value || "all-chains"} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
 
           <select
             value={sortOrder}
