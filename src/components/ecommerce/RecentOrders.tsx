@@ -150,7 +150,7 @@ export default function RecentOrders() {
       <div className="flex flex-col gap-4 mb-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Web3 Project Radar
+            Web3 项目雷达
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Search and sort read-only research snapshots for Web3 projects.
