@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import { Web3Project, ProjectFilterOptions } from '@/types/web3-project';
 import { 

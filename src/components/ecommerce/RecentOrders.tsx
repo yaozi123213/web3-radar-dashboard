@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -6,60 +8,70 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import { useWeb3Projects } from "@/hooks/useWeb3Projects";
+import type { Web3Project } from "@/types/web3-project";
 
 interface ProjectScan {
-  id: number;
+  id: string;
   name: string;
   summary: string;
   category: string;
-  risk: "Low" | "Medium" | "High";
+  risk: "Low" | "Medium" | "High" | "Critical";
   status: "Reviewed" | "Watching" | "Flagged";
 }
 
-const tableData: ProjectScan[] = [
-  {
-    id: 1,
-    name: "EigenLayer",
-    summary: "Restaking protocol with active ecosystem signals",
-    category: "Restaking",
-    risk: "Medium",
-    status: "Watching",
-  },
-  {
-    id: 2,
-    name: "Ethena",
-    summary: "Synthetic dollar protocol with market risk exposure",
-    category: "Stablecoin",
-    risk: "High",
-    status: "Flagged",
-  },
-  {
-    id: 3,
-    name: "Uniswap",
-    summary: "Established DEX with strong open-source footprint",
-    category: "DEX",
-    risk: "Low",
-    status: "Reviewed",
-  },
-  {
-    id: 4,
-    name: "Pendle",
-    summary: "Yield trading protocol with complex product mechanics",
-    category: "DeFi",
-    risk: "Medium",
-    status: "Watching",
-  },
-  {
-    id: 5,
-    name: "Unknown AI Token",
-    summary: "Marketing-heavy project with unclear repo activity",
-    category: "AI / Token",
-    risk: "High",
-    status: "Flagged",
-  },
-];
+function mapWeb3ProjectToProjectScan(project: Web3Project): ProjectScan {
+  // 状态映射
+  const statusMap: Record<Web3Project['status'], ProjectScan['status']> = {
+    active: "Watching",
+    testing: "Watching",
+    launching: "Flagged",
+    deprecated: "Reviewed",
+  };
+
+  // 风险映射
+  const riskMap: Record<Web3Project['riskLevel'], ProjectScan['risk']> = {
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    critical: "Critical",
+  };
+
+  return {
+    id: project.id,
+    name: project.name,
+    summary: project.description,
+    category: project.category,
+    risk: riskMap[project.riskLevel],
+    status: statusMap[project.status],
+  };
+}
 
 export default function RecentOrders() {
+  const { projects, isLoading, error } = useWeb3Projects();
+
+  if (isLoading) {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-gray-500 dark:text-gray-400">Loading project scans...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-error-600 dark:text-error-500">{error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  const tableData = projects.map(mapWeb3ProjectToProjectScan);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
