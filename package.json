@@ -1,7 +1,8 @@
 {
-  "name": "free-nextjs-admin-dashboard",
-  "version": "2.3.0",
-  "private": true,
+  "name": "web3-radar-dashboard",
+  "version": "1.0.0",
+  "description": "Web3 project risk monitoring dashboard - built on TailAdmin template",
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
