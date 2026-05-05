@@ -4,13 +4,13 @@ Built on TailAdmin Next.js Template
 
 ## Project Overview
 
-Web3 Radar Dashboard is a project risk monitoring dashboard built on TailAdmin Next.js template. It provides real-time monitoring, risk assessment, and data visualization for Web3 projects across multiple blockchain ecosystems.
+Web3 Radar Dashboard is a project risk monitoring dashboard built on TailAdmin Next.js template. It provides dashboard-style monitoring, risk assessment overview, and data visualization for Web3 projects across multiple blockchain ecosystems.
 
 ## Features
 
-- **Project Risk Monitoring**: Real-time tracking of Web3 project risks
+- **Project Risk Monitoring**: Dashboard-style tracking of Web3 project risks
 - **Chain Filtering**: Filter projects by blockchain (Ethereum, Polygon, Solana, etc.)
-- **Risk Level Classification**: Automated risk scoring and categorization
+- **Risk Level Classification**: Risk level display and categorization
 - **Search & Sorting**: Advanced search functionality for project discovery
 - **Project Detail Modal**: Detailed view of individual project metrics
 - **Recent Scans Table**: Latest project scanning activities and results
@@ -26,7 +26,7 @@ Web3 Radar Dashboard is a project risk monitoring dashboard built on TailAdmin N
 1. Clone and install dependencies:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yaozi123213/web3-radar-dashboard.git
 cd web3-radar-dashboard
 npm install
 ```
