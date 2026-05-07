@@ -113,6 +113,10 @@ export default function RecentOrders() {
   });
 
   const tableData = projects.map(mapWeb3ProjectToProjectScan);
+  const highRiskCount = projects.filter(
+    (project) => project.riskLevel === "high" || project.riskLevel === "critical"
+  ).length;
+  const topRiskProject = [...projects].sort((a, b) => a.riskScore - b.riskScore)[0];
 
   if (isLoading) {
     return (
@@ -135,7 +139,27 @@ export default function RecentOrders() {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-error-200 bg-error-50 p-5 dark:border-error-500/30 dark:bg-error-500/10 sm:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="mb-2 inline-flex rounded-full bg-error-100 px-3 py-1 text-xs font-semibold text-error-600 dark:bg-error-500/20 dark:text-error-400">
+              Critical Alert Banner
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              Web3 Risk Radar is monitoring {highRiskCount} high / critical signal{highRiskCount === 1 ? "" : "s"}
+            </h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              Highest risk project: <span className="font-semibold">{topRiskProject?.name ?? "N/A"}</span> · Last scan status: mock data
+            </p>
+          </div>
+          <div className="rounded-xl bg-white px-4 py-3 text-sm text-gray-700 shadow-sm dark:bg-gray-900 dark:text-gray-300">
+            Web3 Risk Radar · API: not connected
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -413,6 +437,7 @@ export default function RecentOrders() {
           </div>
         )}
       </Modal>
+      </div>
     </div>
   );
 }
