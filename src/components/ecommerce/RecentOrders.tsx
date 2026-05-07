@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Table,
   TableBody,
@@ -67,7 +67,7 @@ function mapWeb3ProjectToProjectScan(project: Web3Project): ProjectScan {
   };
 }
 
-function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailItem({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
       <h4 className="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">
