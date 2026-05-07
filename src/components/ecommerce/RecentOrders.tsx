@@ -24,32 +24,21 @@ interface ProjectScan {
 }
 
 function getProjectRiskScore(project: Web3Project): number {
-  const projectWithScore = project as Web3Project & {
-    riskScore?: number;
-    riskMetrics?: {
-      overall?: number;
-      score?: number;
-      overallScore?: number;
-    };
-  };
+  return project.riskScore ?? 0;
+}
 
-  if (typeof projectWithScore.riskScore === "number") {
-    return projectWithScore.riskScore;
-  }
+function formatCurrency(value?: number): string {
+  if (typeof value !== "number") return "N/A";
+  return `$${value.toLocaleString()}`;
+}
 
-  if (typeof projectWithScore.riskMetrics?.overall === "number") {
-    return projectWithScore.riskMetrics.overall;
-  }
+function formatNumber(value?: number): string {
+  if (typeof value !== "number") return "N/A";
+  return value.toLocaleString();
+}
 
-  if (typeof projectWithScore.riskMetrics?.overallScore === "number") {
-    return projectWithScore.riskMetrics.overallScore;
-  }
-
-  if (typeof projectWithScore.riskMetrics?.score === "number") {
-    return projectWithScore.riskMetrics.score;
-  }
-
-  return 0;
+function formatStatus(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function mapWeb3ProjectToProjectScan(project: Web3Project): ProjectScan {
@@ -78,7 +67,17 @@ function mapWeb3ProjectToProjectScan(project: Web3Project): ProjectScan {
   };
 }
 
-// 可用的风险等级选项（类型安全）
+function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div>
+      <h4 className="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+        {label}
+      </h4>
+      <div className="text-gray-800 dark:text-white/90">{value}</div>
+    </div>
+  );
+}
+
 type RiskLevelType = Web3Project["riskLevel"];
 const RISK_OPTIONS: { label: string; value: RiskLevelType | "" }[] = [
   { label: "All risks", value: "" },
@@ -88,7 +87,6 @@ const RISK_OPTIONS: { label: string; value: RiskLevelType | "" }[] = [
   { label: "Critical", value: "critical" },
 ];
 
-// 可用的链选项（基于现有样本项目）
 const CHAIN_OPTIONS = [
   { label: "All chains", value: "" },
   { label: "Ethereum", value: "ethereum" },
@@ -103,7 +101,6 @@ export default function RecentOrders() {
   const [selectedChain, setSelectedChain] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Web3Project | null>(null);
 
-  // 准备筛选参数：空字符串表示"全部"，将其转换为 undefined 以避免传给 API 空字符串数组
   const riskLevels = selectedRisk ? [selectedRisk as RiskLevelType] : undefined;
   const chains = selectedChain ? [selectedChain] : undefined;
 
@@ -116,14 +113,6 @@ export default function RecentOrders() {
   });
 
   const tableData = projects.map(mapWeb3ProjectToProjectScan);
-
-  const openProjectDetail = (project: Web3Project) => {
-    setSelectedProject(project);
-  };
-
-  const closeProjectDetail = () => {
-    setSelectedProject(null);
-  };
 
   if (isLoading) {
     return (
@@ -147,7 +136,7 @@ export default function RecentOrders() {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-      <div className="flex flex-col gap-4 mb-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Web3 项目雷达
@@ -201,12 +190,12 @@ export default function RecentOrders() {
       </div>
 
       <div className="mb-3 text-sm text-gray-500 dark:text-gray-400">
-        Showing {tableData.length} of {projects.length} matched project{projects.length === 1 ? "" : "s"}.
+        Showing {tableData.length} matched project{tableData.length === 1 ? "" : "s"}.
       </div>
 
       <div className="max-w-full overflow-x-auto">
         <Table>
-          <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
+          <TableHeader className="border-y border-gray-100 dark:border-gray-800">
             <TableRow>
               <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                 Project
@@ -234,36 +223,31 @@ export default function RecentOrders() {
                 </TableCell>
               </TableRow>
             ) : (
-              tableData.map((project, index) => (
-                <TableRow key={project.id}>
-                  <TableCell className="py-3">
-                    <div 
-                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                      onClick={() => openProjectDetail(projects[index])}
-                    >
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {project.name}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {project.summary}
-                      </span>
-                    </div>
-                  </TableCell>
+              tableData.map((project, index) => {
+                const sourceProject = projects[index];
 
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    <div 
-                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                      onClick={() => openProjectDetail(projects[index])}
-                    >
+                return (
+                  <TableRow key={project.id}>
+                    <TableCell className="py-3">
+                      <button
+                        type="button"
+                        className="text-left"
+                        onClick={() => setSelectedProject(sourceProject)}
+                      >
+                        <p className="font-medium text-gray-800 text-theme-sm hover:text-brand-500 dark:text-white/90">
+                          {project.name}
+                        </p>
+                        <span className="text-gray-500 text-theme-xs dark:text-gray-400">
+                          {project.summary}
+                        </span>
+                      </button>
+                    </TableCell>
+
+                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       {project.category}
-                    </div>
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    <div 
-                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                      onClick={() => openProjectDetail(projects[index])}
-                    >
+                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <Badge
                         size="sm"
                         color={
@@ -276,23 +260,13 @@ export default function RecentOrders() {
                       >
                         {project.risk}
                       </Badge>
-                    </div>
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    <div 
-                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                      onClick={() => openProjectDetail(projects[index])}
-                    >
+                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       {project.riskScore}
-                    </div>
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    <div 
-                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                      onClick={() => openProjectDetail(projects[index])}
-                    >
+                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <Badge
                         size="sm"
                         color={
@@ -305,26 +279,25 @@ export default function RecentOrders() {
                       >
                         {project.status}
                       </Badge>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
       </div>
 
-      {/* 项目详情模态框 */}
       <Modal
         isOpen={selectedProject !== null}
-        onClose={closeProjectDetail}
+        onClose={() => setSelectedProject(null)}
         showCloseButton={true}
-        className="max-w-3xl"
+        className="max-w-4xl"
       >
         {selectedProject && (
           <div className="p-6">
             <div className="mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800 dark:text-white/90 mb-2">
+              <h3 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
                 {selectedProject.name}
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
@@ -332,142 +305,81 @@ export default function RecentOrders() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Project ID
-                  </h4>
-                  <p className="text-gray-800 dark:text-white/90 font-mono">
-                    {selectedProject.id}
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Category
-                  </h4>
-                  <p className="text-gray-800 dark:text-white/90">
-                    {selectedProject.category}
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Risk Level
-                  </h4>
-                  <div className="inline-flex">
-                    <Badge
-                      size="sm"
-                      color={
-                        selectedProject.riskLevel === "low"
-                          ? "success"
-                          : selectedProject.riskLevel === "medium"
-                          ? "warning"
-                          : "error"
-                      }
+            <div className="mb-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <DetailItem label="Category" value={selectedProject.category} />
+              <DetailItem label="Status" value={formatStatus(selectedProject.status)} />
+              <DetailItem label="Risk Level" value={formatStatus(selectedProject.riskLevel)} />
+              <DetailItem label="Risk Score" value={selectedProject.riskScore} />
+              <DetailItem label="TVL" value={formatCurrency(selectedProject.tvl)} />
+              <DetailItem label="Users" value={formatNumber(selectedProject.users)} />
+              <DetailItem label="24h Volume" value={formatCurrency(selectedProject.volume24h)} />
+              <DetailItem
+                label="Website"
+                value={
+                  selectedProject.websiteUrl ? (
+                    <a
+                      href={selectedProject.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-500 hover:text-brand-600"
                     >
-                      {selectedProject.riskLevel.charAt(0).toUpperCase() + selectedProject.riskLevel.slice(1)}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Risk Score
-                  </h4>
-                  <p className="text-gray-800 dark:text-white/90">
-                    {selectedProject.riskScore}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                    Status
-                  </h4>
-                  <div className="inline-flex">
-                    <Badge
-                      size="sm"
-                      color={
-                        selectedProject.status === "active" 
-                          ? "warning" 
-                          : selectedProject.status === "testing"
-                          ? "warning"
-                          : selectedProject.status === "launching"
-                          ? "error"
-                          : "success"
-                      }
-                    >
-                      {selectedProject.status.charAt(0).toUpperCase() + selectedProject.status.slice(1)}
-                    </Badge>
-                  </div>
-                </div>
-
-                {selectedProject.token && (
-                  <>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Token
-                      </h4>
-                      <p className="text-gray-800 dark:text-white/90">
-                        {selectedProject.token.symbol} ({selectedProject.token.name})
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                        Chain
-                      </h4>
-                      <p className="text-gray-800 dark:text-white/90 capitalize">
-                        {selectedProject.token.chain}
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                {selectedProject.tvl && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Total Value Locked
-                    </h4>
-                    <p className="text-gray-800 dark:text-white/90">
-                      ${selectedProject.tvl.toLocaleString()}
-                    </p>
-                  </div>
-                )}
-
-                {selectedProject.websiteUrl && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Website
-                    </h4>
-                    <p className="text-gray-800 dark:text-white/90 truncate">
-                      <a 
-                        href={selectedProject.websiteUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-brand-500 hover:text-brand-600 transition-colors"
-                      >
-                        {selectedProject.websiteUrl}
-                      </a>
-                    </p>
-                  </div>
-                )}
-              </div>
+                      {selectedProject.websiteUrl}
+                    </a>
+                  ) : (
+                    "N/A"
+                  )
+                }
+              />
+              <DetailItem
+                label="Contract Address"
+                value={
+                  <span className="break-all font-mono text-sm">
+                    {selectedProject.contractAddress ?? "N/A"}
+                  </span>
+                }
+              />
             </div>
 
-            {selectedProject.tags && selectedProject.tags.length > 0 && (
+            {selectedProject.token && (
+              <div className="mb-6 rounded-xl border border-gray-200 p-4 dark:border-gray-800">
+                <h4 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Token
+                </h4>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <DetailItem label="Symbol" value={selectedProject.token.symbol} />
+                  <DetailItem label="Name" value={selectedProject.token.name} />
+                  <DetailItem label="Chain" value={formatStatus(selectedProject.token.chain)} />
+                  <DetailItem label="Price" value={formatCurrency(selectedProject.token.price)} />
+                  <DetailItem
+                    label="24h Change"
+                    value={
+                      typeof selectedProject.token.change24h === "number"
+                        ? `${selectedProject.token.change24h}%`
+                        : "N/A"
+                    }
+                  />
+                  <DetailItem
+                    label="Token Address"
+                    value={
+                      <span className="break-all font-mono text-sm">
+                        {selectedProject.token.address ?? "N/A"}
+                      </span>
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
+            {selectedProject.tags.length > 0 && (
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                <h4 className="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
                   Tags
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedProject.tags.map((tag, index) => (
+                  {selectedProject.tags.map((tag) => (
                     <span
-                      key={index}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full"
+                      key={tag}
+                      className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300"
                     >
                       {tag}
                     </span>
@@ -476,30 +388,28 @@ export default function RecentOrders() {
               </div>
             )}
 
-            {selectedProject.riskMetrics && selectedProject.riskMetrics.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">
-                  Risk Metrics Breakdown
-                </h4>
-                <div className="space-y-3">
-                  {selectedProject.riskMetrics.map((metric, index) => (
-                    <div key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-medium text-gray-700 dark:text-gray-300 capitalize">
-                          {metric.category}
-                        </span>
-                        <span className="font-semibold text-gray-800 dark:text-white/90">
-                          {metric.score}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {metric.description}
-                      </p>
+            <div>
+              <h4 className="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                Risk Metrics Breakdown
+              </h4>
+              <div className="space-y-3">
+                {selectedProject.riskMetrics.map((metric) => (
+                  <div key={metric.category} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="font-medium capitalize text-gray-700 dark:text-gray-300">
+                        {metric.category}
+                      </span>
+                      <span className="font-semibold text-gray-800 dark:text-white/90">
+                        {metric.score}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {metric.description}
+                    </p>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         )}
       </Modal>
