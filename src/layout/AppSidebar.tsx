@@ -32,6 +32,11 @@ const navItems: NavItem[] = [
     subItems: [{ name: "Project Overview", path: "/", pro: false }],
   },
   {
+    icon: <PlugInIcon />,
+    name: "Hermes Arena",
+    path: "/hermes-arena",
+  },
+  {
     icon: <CalenderIcon />,
     name: "Wallet Tracker",
     path: "/wallet-tracker",
