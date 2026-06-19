@@ -37,6 +37,7 @@ export default function WalletTrackerPage() {
                 <th className="px-4 py-3 font-medium text-gray-500">Chain</th>
                 <th className="px-4 py-3 font-medium text-gray-500">Risk</th>
                 <th className="px-4 py-3 font-medium text-gray-500">Note</th>
+                <th className="px-4 py-3 font-medium text-gray-500">DeBank</th>
               </tr>
             </thead>
             <tbody>
@@ -56,6 +57,16 @@ export default function WalletTrackerPage() {
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.chain}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.risk}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.note}</td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`https://debank.com/profile/${wallet.address}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand-500 hover:underline"
+                    >
+                      View
+                    </a>
+                  </td>
                 </tr>
               ))}
             </tbody>
