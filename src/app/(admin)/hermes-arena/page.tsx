@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { currentHermesChallenge } from "@/data/hermesChallenges";
+import { currentHermesChallenge, hermesChallenges } from "@/data/hermesChallenges";
 
 export const metadata: Metadata = {
   title: "Hermes Arena | Web3 Radar",
@@ -24,6 +24,7 @@ export default function HermesArenaPage() {
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Current Challenge
           </h2>
+
           <div className="mt-4 rounded-xl bg-gray-50 p-4 dark:bg-white/[0.04]">
             <p className="text-xs uppercase text-gray-400">Mission</p>
             <h3 className="mt-1 text-base font-semibold text-gray-900 dark:text-white">
@@ -37,15 +38,21 @@ export default function HermesArenaPage() {
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
               <p className="text-xs text-gray-400">Mode</p>
-              <p className="mt-1 font-semibold text-gray-900 dark:text-white">{currentHermesChallenge.mode}</p>
+              <p className="mt-1 font-semibold text-gray-900 dark:text-white">
+                {currentHermesChallenge.mode}
+              </p>
             </div>
             <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
               <p className="text-xs text-gray-400">Judge</p>
-              <p className="mt-1 font-semibold text-yellow-600">{currentHermesChallenge.judge}</p>
+              <p className="mt-1 font-semibold text-yellow-600">
+                {currentHermesChallenge.judge}
+              </p>
             </div>
             <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
               <p className="text-xs text-gray-400">Risk</p>
-              <p className="mt-1 font-semibold text-green-600">{currentHermesChallenge.risk}</p>
+              <p className="mt-1 font-semibold text-green-600">
+                {currentHermesChallenge.risk}
+              </p>
             </div>
           </div>
         </div>
@@ -67,15 +74,51 @@ export default function HermesArenaPage() {
           </div>
         </div>
 
+        <div className="col-span-12 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Challenge List
+          </h2>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            {hermesChallenges.map((challenge) => (
+              <div
+                key={challenge.id}
+                className="rounded-xl border border-gray-100 p-4 dark:border-gray-800"
+              >
+                <p className="text-xs font-medium text-gray-400">{challenge.id}</p>
+                <h3 className="mt-2 font-semibold text-gray-900 dark:text-white">
+                  {challenge.title}
+                </h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {challenge.target}
+                </p>
+                <div className="mt-4 flex items-center justify-between text-xs">
+                  <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-600 dark:bg-white/[0.06] dark:text-gray-300">
+                    {challenge.mode}
+                  </span>
+                  <span className="font-semibold text-gray-500">{challenge.judge}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="col-span-12 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] xl:col-span-6">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Safety Gates
           </h2>
           <div className="mt-4 space-y-3">
             {currentHermesChallenge.checks.map((check) => (
-              <div key={check.name} className="flex items-center justify-between rounded-xl border border-gray-100 p-3 dark:border-gray-800">
-                <span className="text-sm text-gray-700 dark:text-gray-300">{check.name}</span>
-                <span className="text-xs font-semibold text-gray-500">{check.status}</span>
+              <div
+                key={check.name}
+                className="flex items-center justify-between rounded-xl border border-gray-100 p-3 dark:border-gray-800"
+              >
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {check.name}
+                </span>
+                <span className="text-xs font-semibold text-gray-500">
+                  {check.status}
+                </span>
               </div>
             ))}
           </div>
@@ -87,7 +130,10 @@ export default function HermesArenaPage() {
           </h2>
           <div className="mt-4 space-y-3">
             {currentHermesChallenge.logs.map((log) => (
-              <div key={log} className="rounded-xl bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-white/[0.04] dark:text-gray-300">
+              <div
+                key={log}
+                className="rounded-xl bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-white/[0.04] dark:text-gray-300"
+              >
                 {log}
               </div>
             ))}
