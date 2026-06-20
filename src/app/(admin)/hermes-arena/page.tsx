@@ -7,6 +7,14 @@ export const metadata: Metadata = {
 };
 
 export default function HermesArenaPage() {
+  const totalChallenges = hermesChallenges.length;
+  const pendingChallenges = hermesChallenges.filter(
+    (challenge) => challenge.judge === "PENDING"
+  ).length;
+  const passedChallenges = hermesChallenges.filter(
+    (challenge) => challenge.judge === "PASS"
+  ).length;
+
   return (
     <div className="space-y-6">
       <div>
@@ -17,6 +25,21 @@ export default function HermesArenaPage() {
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Run Hermes challenge cards, audit tool behavior, and judge PASS / PARTIAL / FAIL.
         </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Total Challenges</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{totalChallenges}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
+          <p className="mt-2 text-2xl font-semibold text-yellow-600">{pendingChallenges}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Passed</p>
+          <p className="mt-2 text-2xl font-semibold text-green-600">{passedChallenges}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4 md:gap-6">
