@@ -22,4 +22,15 @@ export const trackedWallets: TrackedWallet[] = [
     signal: "Research sample, not trade signal",
     source: "DeBank",
   },
+  {
+    label: "Hayden / Uniswap Public Wallet",
+    address: "0x50EC05ADe8280758E2077fcBC08D878D4aef79C3",
+    chain: "Ethereum",
+    note: "ENS: hayden.eth. Added as second public wallet research sample.",
+    risk: "Watch",
+    lastAction: "ENS wallet added",
+    token: "Unknown",
+    signal: "Research sample, pending DeBank observation",
+    source: "ENS",
+  },
 ];
