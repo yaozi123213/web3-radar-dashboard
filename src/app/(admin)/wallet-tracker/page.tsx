@@ -36,6 +36,10 @@ export default function WalletTrackerPage() {
                 <th className="px-4 py-3 font-medium text-gray-500">Address</th>
                 <th className="px-4 py-3 font-medium text-gray-500">Chain</th>
                 <th className="px-4 py-3 font-medium text-gray-500">Risk</th>
+                <th className="px-4 py-3 font-medium text-gray-500">Last Action</th>
+                <th className="px-4 py-3 font-medium text-gray-500">Token</th>
+                <th className="px-4 py-3 font-medium text-gray-500">Signal</th>
+                <th className="px-4 py-3 font-medium text-gray-500">Source</th>
                 <th className="px-4 py-3 font-medium text-gray-500">Note</th>
                 <th className="px-4 py-3 font-medium text-gray-500">DeBank</th>
               </tr>
@@ -56,6 +60,10 @@ export default function WalletTrackerPage() {
                   </td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.chain}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.risk}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.lastAction}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.token}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.signal}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.source}</td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{wallet.note}</td>
                   <td className="px-4 py-3">
                     <a

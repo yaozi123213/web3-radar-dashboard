@@ -4,6 +4,10 @@ export type TrackedWallet = {
   chain: string;
   note: string;
   risk: string;
+  lastAction: string;
+  token: string;
+  signal: string;
+  source: string;
 };
 
 export const trackedWallets: TrackedWallet[] = [
@@ -13,5 +17,9 @@ export const trackedWallets: TrackedWallet[] = [
     chain: "Ethereum / Base / OP",
     note: "DeBank observed: ~$401K total, Ethereum-heavy, Base exposure, DeFi protocol spread",
     risk: "Watch",
+    lastAction: "Portfolio observation",
+    token: "ETH / multi-chain assets",
+    signal: "Research sample, not trade signal",
+    source: "DeBank",
   },
 ];
