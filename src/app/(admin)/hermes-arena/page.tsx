@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   description: "Hermes challenge game control panel",
 };
 
+function getJudgeColor(status: string) {
+  if (status === "PASS") return "text-green-600";
+  if (status === "PARTIAL") return "text-yellow-600";
+  if (status === "FAIL") return "text-red-600";
+  return "text-gray-500";
+}
+
 export default function HermesArenaPage() {
   const totalChallenges = hermesChallenges.length;
   const pendingChallenges = hermesChallenges.filter(
@@ -119,7 +126,9 @@ export default function HermesArenaPage() {
                   <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-600 dark:bg-white/[0.06] dark:text-gray-300">
                     {challenge.mode}
                   </span>
-                  <span className="font-semibold text-gray-500">{challenge.judge}</span>
+                  <span className={`font-semibold ${getJudgeColor(challenge.judge)}`}>
+                    {challenge.judge}
+                  </span>
                 </div>
               </div>
             ))}
@@ -139,7 +148,7 @@ export default function HermesArenaPage() {
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   {check.name}
                 </span>
-                <span className="text-xs font-semibold text-gray-500">
+                <span className={`text-xs font-semibold ${getJudgeColor(check.status)}`}>
                   {check.status}
                 </span>
               </div>
