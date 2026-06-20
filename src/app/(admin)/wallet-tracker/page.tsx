@@ -7,6 +7,12 @@ export const metadata: Metadata = {
 };
 
 export default function WalletTrackerPage() {
+  const totalWallets = trackedWallets.length;
+  const watchWallets = trackedWallets.filter((wallet) => wallet.risk === "Watch").length;
+  const researchSignals = trackedWallets.filter((wallet) =>
+    wallet.signal.toLowerCase().includes("research")
+  ).length;
+
   return (
     <div className="space-y-6">
       <div>
@@ -16,6 +22,21 @@ export default function WalletTrackerPage() {
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Track selected Web3 wallets, monitor activity, and prepare risk signals.
         </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Tracked Wallets</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{totalWallets}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Watch List</p>
+          <p className="mt-2 text-2xl font-semibold text-yellow-600">{watchWallets}</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Research Signals</p>
+          <p className="mt-2 text-2xl font-semibold text-green-600">{researchSignals}</p>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
