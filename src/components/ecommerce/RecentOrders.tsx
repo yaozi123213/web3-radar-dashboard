@@ -12,6 +12,9 @@ import Badge from "../ui/badge/Badge";
 import { useWeb3Projects, ProjectSortOrder } from "@/hooks/useWeb3Projects";
 import type { Web3Project } from "@/types/web3-project";
 import { Modal } from "@/components/ui/modal";
+import dynamic from "next/dynamic";
+
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface ProjectScan {
   id: string;
@@ -409,6 +412,48 @@ export default function RecentOrders() {
                     </span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {selectedProject.riskMetrics.length > 0 && (
+              <div className="mb-6">
+                <h4 className="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Risk Radar
+                </h4>
+                <Chart
+                  options={{
+                    chart: { type: "radar", toolbar: { show: false } },
+                    xaxis: {
+                      categories: selectedProject.riskMetrics.map((m) =>
+                        m.category.charAt(0).toUpperCase() + m.category.slice(1)
+                      ),
+                    },
+                    yaxis: { min: 0, max: 100, tickAmount: 5 },
+                    fill: { opacity: 0.3 },
+                    stroke: { show: true, width: 2, colors: ["#465FFF"] },
+                    markers: { size: 4 },
+                    colors: ["#465FFF"],
+                    plotOptions: {
+                      radar: {
+                        polygons: {
+                          strokeColors: "#e5e7eb",
+                          fill: { colors: ["#f8fafc", "#f1f5f9"] },
+                        },
+                      },
+                    },
+                    tooltip: { enabled: true, y: { formatter: (val) => `${val}/100` } },
+                    legend: { show: false },
+                    dataLabels: { enabled: true, style: { fontSize: "12px" } },
+                  }}
+                  series={[
+                    {
+                      name: "Risk Score",
+                      data: selectedProject.riskMetrics.map((m) => m.score),
+                    },
+                  ]}
+                  type="radar"
+                  height={280}
+                />
               </div>
             )}
 
