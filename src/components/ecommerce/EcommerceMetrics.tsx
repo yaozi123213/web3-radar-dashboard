@@ -54,7 +54,7 @@ export const EcommerceMetrics = () => {
             <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
           </div>
 
-          <div className="flex items-end justify-between mt-5">
+          <div className="flex items-end justify-between gap-3 mt-5">
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 Radar Projects
@@ -74,7 +74,7 @@ export const EcommerceMetrics = () => {
           <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
             <BoxIconLine className="text-gray-800 dark:text-white/90" />
           </div>
-          <div className="flex items-end justify-between mt-5">
+          <div className="flex items-end justify-between gap-3 mt-5">
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 High / Critical Alerts
@@ -95,7 +95,7 @@ export const EcommerceMetrics = () => {
           <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
             <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
           </div>
-          <div className="flex items-end justify-between mt-5">
+          <div className="flex items-end justify-between gap-3 mt-5">
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 Chains Covered
@@ -120,10 +120,10 @@ export const EcommerceMetrics = () => {
             <span className="text-sm text-gray-500 dark:text-gray-400">
               Top Risk Project
             </span>
-            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+            <h4 className="mt-2 font-bold text-gray-800 text-lg dark:text-white/90">
               {topRiskProject?.name ?? "N/A"}
             </h4>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               Score {topRiskProject?.riskScore ?? "N/A"} · {topRiskProject?.riskLevel ?? "unknown"}
             </p>
           </div>
