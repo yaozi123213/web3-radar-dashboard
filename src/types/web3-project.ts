@@ -40,6 +40,9 @@ export interface Web3Project {
   tags: string[];
   websiteUrl?: string;
   contractAddress?: string; // 明显 fake 地址示例格式
+  
+  // 观察名单标记
+  isWatchlisted?: boolean;
 }
 
 // 扩展类型：项目列表过滤选项

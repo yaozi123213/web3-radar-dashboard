@@ -63,6 +63,7 @@ export const mockWeb3Projects: Web3Project[] = [
     tags: ['ai', 'agents', 'solana', 'emerging'],
     websiteUrl: 'https://ai-agent-network.example.com',
     // 不包含 contractAddress（可选）
+    isWatchlisted: true,
   },
   {
     id: 'project-003',
@@ -125,6 +126,7 @@ export const mockWeb3Projects: Web3Project[] = [
     tags: ['gamefi', 'p2e', 'bnb', 'metaverse'],
     websiteUrl: 'https://galactic-warriors.example.com',
     contractAddress: '0x0000000000000000000000000000000000000004', // Fake 地址
+    isWatchlisted: true,
   },
   {
     id: 'project-005',
@@ -156,6 +158,7 @@ export const mockWeb3Projects: Web3Project[] = [
     tags: ['gamefi', 'competitive', 'polygon', 'emerging'],
     websiteUrl: 'https://meta-arena.example.com',
     contractAddress: '0x0000000000000000000000000000000000000005', // Fake 地址
+    isWatchlisted: true,
   },
   {
     id: 'project-006',
@@ -311,6 +314,7 @@ export const mockWeb3Projects: Web3Project[] = [
     tags: ['ai', 'compute', 'ethereum', 'emerging'],
     websiteUrl: 'https://compute-marketplace.example.com',
     contractAddress: '0x0000000000000000000000000000000000000010', // Fake 地址
+    isWatchlisted: true,
   },
   {
     id: 'project-011',
@@ -435,6 +439,7 @@ export const mockWeb3Projects: Web3Project[] = [
     tags: ['defi', 'rwa', 'ethereum', 'regulated'],
     websiteUrl: 'https://rwa-tokenization.example.com',
     contractAddress: '0x0000000000000000000000000000000000000014', // Fake 地址
+    isWatchlisted: true,
   },
   {
     id: 'project-015',
