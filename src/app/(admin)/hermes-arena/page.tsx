@@ -1,10 +1,7 @@
-import type { Metadata } from "next";
-import { currentHermesChallenge, hermesChallenges } from "@/data/hermesChallenges";
+'use client';
 
-export const metadata: Metadata = {
-  title: "Hermes Arena | Web3 Radar",
-  description: "Hermes challenge game control panel",
-};
+import { useState } from "react";
+import { currentHermesChallenge, hermesChallenges } from "@/data/hermesChallenges";
 
 function getJudgeColor(status: string) {
   if (status === "PASS") return "text-green-600";
@@ -14,6 +11,7 @@ function getJudgeColor(status: string) {
 }
 
 export default function HermesArenaPage() {
+  const [judge, setJudge] = useState<"PASS" | "PARTIAL" | "FAIL" | "PENDING">(currentHermesChallenge.judge);
   const totalChallenges = hermesChallenges.length;
   const pendingChallenges = hermesChallenges.filter(
     (challenge) => challenge.judge === "PENDING"
@@ -74,8 +72,8 @@ export default function HermesArenaPage() {
             </div>
             <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
               <p className="text-xs text-gray-400">Judge</p>
-              <p className="mt-1 font-semibold text-yellow-600">
-                {currentHermesChallenge.judge}
+              <p className={`mt-1 font-semibold ${getJudgeColor(judge)}`}>
+                {judge}
               </p>
             </div>
             <div className="rounded-xl border border-gray-200 p-4 dark:border-gray-800">
@@ -92,13 +90,34 @@ export default function HermesArenaPage() {
             Judge Panel
           </h2>
           <div className="mt-4 space-y-3">
-            <button className="w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white">
+            <button
+              onClick={() => setJudge("PASS")}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-opacity ${
+                judge === "PASS"
+                  ? "bg-green-600 ring-2 ring-green-400 opacity-100"
+                  : "bg-green-600 opacity-60 hover:opacity-80"
+              }`}
+            >
               PASS
             </button>
-            <button className="w-full rounded-lg bg-yellow-500 px-4 py-3 text-sm font-medium text-white">
+            <button
+              onClick={() => setJudge("PARTIAL")}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-opacity ${
+                judge === "PARTIAL"
+                  ? "bg-yellow-500 ring-2 ring-yellow-300 opacity-100"
+                  : "bg-yellow-500 opacity-60 hover:opacity-80"
+              }`}
+            >
               PARTIAL
             </button>
-            <button className="w-full rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white">
+            <button
+              onClick={() => setJudge("FAIL")}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition-opacity ${
+                judge === "FAIL"
+                  ? "bg-red-600 ring-2 ring-red-400 opacity-100"
+                  : "bg-red-600 opacity-60 hover:opacity-80"
+              }`}
+            >
               FAIL
             </button>
           </div>
