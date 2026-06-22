@@ -57,6 +57,19 @@ export default function HermesArenaPage() {
     ]);
   }, [selectedChallengeId, currentChallenge]);
 
+  const handleClearLog = useCallback(() => {
+    setArenaLogs([]);
+  }, []);
+
+  const handleResetAll = useCallback(() => {
+    setChallenges(prev => prev.map(c => ({ ...c, judge: "PENDING" as const })));
+    setArenaLogs([]);
+    setSelectedChallengeId(prev => {
+      const exists = challenges.some(c => c.id === prev);
+      return exists ? prev : challenges[0].id;
+    });
+  }, [challenges]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -226,12 +239,29 @@ export default function HermesArenaPage() {
         </div>
 
         <div className="col-span-12 rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03] xl:col-span-6">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Arena Log
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              Arena Log
+            </h2>
+            <div className="flex gap-2">
+              <button
+                onClick={handleClearLog}
+                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:border-red-200 hover:text-red-600 dark:border-gray-700 dark:text-gray-400 dark:hover:border-red-800 dark:hover:text-red-400"
+                disabled={arenaLogs.length === 0}
+              >
+                Clear Log
+              </button>
+              <button
+                onClick={handleResetAll}
+                className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:border-yellow-300 hover:text-yellow-600 dark:border-gray-700 dark:text-gray-400 dark:hover:border-yellow-700 dark:hover:text-yellow-400"
+              >
+                Reset All
+              </button>
+            </div>
+          </div>
           {arenaLogs.length === 0 ? (
             <p className="mt-4 text-sm text-gray-400 dark:text-gray-500">
-              No judge actions yet. Click PASS / PARTIAL / FAIL to log.
+              No judge actions yet.
             </p>
           ) : (
             <div className="mt-4 space-y-2">
