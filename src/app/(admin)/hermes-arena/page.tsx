@@ -1,7 +1,14 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { hermesChallenges, type HermesChallenge } from "@/data/hermesChallenges";
+
+interface ArenaLogEntry {
+  id: string;
+  title: string;
+  judge: string;
+  timestamp: string;
+}
 
 function getJudgeColor(status: string) {
   if (status === "PASS") return "text-green-600";
@@ -17,9 +24,15 @@ function getJudgeBg(status: string) {
   return "bg-gray-100 text-gray-500 dark:bg-white/[0.06] dark:text-gray-400";
 }
 
+function formatTimestamp(): string {
+  const now = new Date();
+  return now.toLocaleString("zh-CN", { hour12: false });
+}
+
 export default function HermesArenaPage() {
   const [challenges, setChallenges] = useState<HermesChallenge[]>(hermesChallenges);
   const [selectedChallengeId, setSelectedChallengeId] = useState(hermesChallenges[0].id);
+  const [arenaLogs, setArenaLogs] = useState<ArenaLogEntry[]>([]);
 
   const currentChallenge = challenges.find(c => c.id === selectedChallengeId) || challenges[0];
 
@@ -29,11 +42,20 @@ export default function HermesArenaPage() {
   const partialChallenges = challenges.filter(c => c.judge === "PARTIAL").length;
   const failedChallenges = challenges.filter(c => c.judge === "FAIL").length;
 
-  const updateJudge = (judge: "PASS" | "PARTIAL" | "FAIL") => {
+  const updateJudge = useCallback((judge: "PASS" | "PARTIAL" | "FAIL") => {
     setChallenges(prev => prev.map(c =>
       c.id === selectedChallengeId ? { ...c, judge } : c
     ));
-  };
+    setArenaLogs(prev => [
+      {
+        id: currentChallenge.id,
+        title: currentChallenge.title,
+        judge,
+        timestamp: formatTimestamp(),
+      },
+      ...prev,
+    ]);
+  }, [selectedChallengeId, currentChallenge]);
 
   return (
     <div className="space-y-6">
@@ -207,16 +229,37 @@ export default function HermesArenaPage() {
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Arena Log
           </h2>
-          <div className="mt-4 space-y-3">
-            {currentChallenge.logs.map((log) => (
-              <div
-                key={log}
-                className="rounded-xl bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-white/[0.04] dark:text-gray-300"
-              >
-                {log}
-              </div>
-            ))}
-          </div>
+          {arenaLogs.length === 0 ? (
+            <p className="mt-4 text-sm text-gray-400 dark:text-gray-500">
+              No judge actions yet. Click PASS / PARTIAL / FAIL to log.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-2">
+              {arenaLogs.map((entry, i) => (
+                <div
+                  key={`${entry.id}-${i}`}
+                  className="flex items-center justify-between rounded-xl bg-gray-50 p-3 dark:bg-white/[0.04]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      {entry.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-400">
+                      {entry.id}
+                    </p>
+                  </div>
+                  <div className="ml-3 flex flex-col items-end gap-1">
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${getJudgeBg(entry.judge)}`}>
+                      {entry.judge}
+                    </span>
+                    <span className="text-[10px] text-gray-400">
+                      {entry.timestamp}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
