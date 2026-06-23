@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Web3Project, ProjectFilterOptions } from '@/types/web3-project';
 import {
-  getWeb3Projects as fetchProjects,
-  getProjectStats
+  getWeb3Projects as getLocalWeb3Projects,
+  getProjectStats as getLocalStats,
 } from '@/data/web3-projects';
 
 export type ProjectSortBy = 'riskScore' | 'name' | 'category' | 'riskLevel';
@@ -18,7 +18,7 @@ export interface Web3ProjectQueryOptions extends ProjectFilterOptions {
 
 export interface UseWeb3ProjectsReturn {
   projects: Web3Project[];
-  stats: ReturnType<typeof getProjectStats>;
+  stats: ReturnType<typeof getLocalStats>;
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
@@ -115,10 +115,44 @@ function sortProjects(
 /**
  * Web3 项目数据 hook
  *
- * 提供统一的项目数据访问接口，目前使用本地 mock 数据。
- * 支持原有过滤能力，并增加搜索与排序能力。
+ * 优先从 /api/web3-projects 获取数据，API 失败时 fallback 到本地数据。
  */
 export function useWeb3Projects(options?: Web3ProjectQueryOptions): UseWeb3ProjectsReturn {
+  // ---- raw data from API (or fallback) ----
+  const [allProjects, setAllProjects] = useState<Web3Project[]>([]);
+  const [stats, setStats] = useState<ReturnType<typeof getLocalStats> | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ---- fetch data ----
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/web3-projects');
+      if (!res.ok) {
+        throw new Error(`API responded with status ${res.status}`);
+      }
+      const data = await res.json();
+      setAllProjects(data.projects ?? []);
+      setStats(data.stats ?? getLocalStats());
+    } catch (err) {
+      console.warn('[useWeb3Projects] API failed, falling back to local data', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch projects');
+      // Fallback: use local data so the UI never breaks
+      setAllProjects(getLocalWeb3Projects({}));
+      setStats(getLocalStats());
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // ---- apply client-side options (search, sort, filter) on the source list ----
   const projects = useMemo(() => {
     const {
       searchQuery = '',
@@ -127,26 +161,48 @@ export function useWeb3Projects(options?: Web3ProjectQueryOptions): UseWeb3Proje
       ...filterOptions
     } = options ?? {};
 
-    const filteredProjects = fetchProjects(filterOptions as ProjectFilterOptions)
-      .filter((project) => projectMatchesSearch(project, searchQuery));
+    // Apply filter options on allProjects (mirrors getWeb3Projects logic)
+    let filtered = allProjects;
 
-    return sortProjects(filteredProjects, sortBy, sortOrder);
-  }, [options]);
+    if (filterOptions.categories && filterOptions.categories.length > 0) {
+      filtered = filtered.filter((p) => filterOptions.categories!.includes(p.category));
+    }
+    if (filterOptions.riskLevels && filterOptions.riskLevels.length > 0) {
+      filtered = filtered.filter((p) => filterOptions.riskLevels!.includes(p.riskLevel));
+    }
+    if (filterOptions.chains && filterOptions.chains.length > 0) {
+      filtered = filtered.filter(
+        (p) => p.token?.chain && filterOptions.chains!.includes(p.token.chain)
+      );
+    }
+    if (filterOptions.minRiskScore !== undefined) {
+      filtered = filtered.filter((p) => p.riskScore >= filterOptions.minRiskScore!);
+    }
+    if (filterOptions.maxRiskScore !== undefined) {
+      filtered = filtered.filter((p) => p.riskScore <= filterOptions.maxRiskScore!);
+    }
 
-  const stats = useMemo(() => {
-    return getProjectStats();
-  }, []);
+    return sortProjects(
+      filtered.filter((project) => projectMatchesSearch(project, searchQuery)),
+      sortBy,
+      sortOrder
+    );
+  }, [options, allProjects]);
 
-  const [isLoading] = useState<boolean>(false);
-  const [error] = useState<string | null>(null);
+  // ---- stable stats (never return null to consumers) ----
+  const stableStats = useMemo(
+    () => stats ?? getLocalStats(),
+    [stats]
+  );
 
-  const refetch = () => {
-    console.log('useWeb3Projects: refetch called (本地模式，无操作)');
-  };
+  // ---- refetch ----
+  const refetch = useCallback(() => {
+    fetchData();
+  }, [fetchData]);
 
   return {
     projects,
-    stats,
+    stats: stableStats,
     isLoading,
     error,
     refetch,
@@ -164,7 +220,7 @@ export function useWeb3Project(projectId?: string): {
   const project = useMemo(() => {
     if (!projectId) return undefined;
 
-    return fetchProjects({}).find(p => p.id === projectId);
+    return getLocalWeb3Projects({}).find((p) => p.id === projectId);
   }, [projectId]);
 
   return {
